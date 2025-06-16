@@ -5,9 +5,11 @@ from gtts import gTTS
 from pathlib import Path
 from django.conf import settings
 from time import perf_counter
+from .logger_config import setup_logger
+import logging
 
 load_dotenv()
-
+setup_logger()
 class ModelMistral:
     
 
@@ -27,7 +29,8 @@ class ModelMistral:
         print(metric_file_path)
 
         try:
-            with open(f"{metric_file_path}.txt" , 'w') as f:
+            with open(f"{metric_file_path}.txt" , 'a') as f:
+                f.seek(0)
                 f.write(text)
                 f.write("\n")
         

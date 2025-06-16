@@ -19,8 +19,12 @@ from redis import Redis
 from rq import Queue
 from .agent import ModelMistral
 from time import perf_counter
+from .logger_config import setup_logger
+import logging
 
 load_dotenv()
+setup_logger()
+logger = logging.getLogger(__name__)
 
 class GetPDFView(APIView):
     @download_pdf_schema
@@ -153,14 +157,17 @@ class ImagesToPDF(APIView):
         input_dir.mkdir(exist_ok=True)
 
         request_data = request.FILES.get('file')
+        logger.info(request_data)
 
         file_name = request_data.name.split(".")[0]
+        logger.info(file_name)
 
         mime_type , _ = mimetypes.guess_type(request_data.name)
+        logger.info(mime_type)
 
 
 
-        if mime_type == "application/x-zip-compressed":
+        if mime_type == "application/zip":
 
             serializer = FileUploadSerializer(data=request.data)
 
@@ -170,11 +177,16 @@ class ImagesToPDF(APIView):
                 
                 uploaded_file = serializer.validated_data['file']
 
+                logger.info(uploaded_file)
+
                 input_dir = os.path.join(media_dir , 'Input')
+
+                logger.info(input_dir)
 
                 os.makedirs(input_dir, exist_ok=True)
 
                 input_file_path = os.path.join(input_dir , uploaded_file.name)
+                logger.info(input_file_path)
 
                 
                 try:
@@ -238,12 +250,14 @@ class ImagesToPDF(APIView):
                     return Response({"status":"PDF saved successfully"})
 
                 except Exception as e:
-                    return Response({'error': str(e)}, status=500)
+
+                    logger.info(str(e))
+                    return Response({'error'}, status=500)
                 finally:
                     self.remove_images(file_name)
             
             else:
-
+                
                 return Response({"status":"Invalid file"})
         
 
