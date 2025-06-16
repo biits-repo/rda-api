@@ -7,3 +7,11 @@ class FileCheckSerializer(serializers.Serializer):
         required=True,
         min_length=10
     )
+
+class FileUploadSerializer(serializers.Serializer):
+
+    file = serializers.FileField(help_text  = "Please upload the zip file " , required = True)
+
+
+    
+        

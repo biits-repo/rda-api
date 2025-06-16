@@ -73,6 +73,11 @@ WSGI_APPLICATION = 'app.wsgi.application'
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.FormParser',
+    ],
 }
 
 SPECTACULAR_SETTINGS = {
@@ -127,6 +132,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+MEDIA_URL = 'media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -134,5 +140,8 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Media file directories
-PDF_DIR = BASE_DIR.parent / 'media' / 'pdfs'
-AUDIO_DIR = BASE_DIR.parent / 'media' / 'audio'
+# PDF_DIR = BASE_DIR.parent / 'media' / 'pdfs'
+# AUDIO_DIR = BASE_DIR.parent / 'media' / 'audio'
+
+MEDIA_DIR = BASE_DIR.parent / 'media' 
+
