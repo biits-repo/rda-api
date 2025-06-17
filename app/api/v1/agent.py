@@ -126,6 +126,9 @@ class ModelMistral:
 
             print(audio_file_path)
 
+            with open(text_file_path , 'w') as f:
+                f.write(resp) 
+                
             resp = str(resp)
             tts = gTTS(resp)
             tts.save(audio_file_path)
