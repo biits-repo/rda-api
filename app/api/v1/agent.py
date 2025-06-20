@@ -40,26 +40,26 @@ class ModelMistral:
 
 
 
-    def get_file_path(self,file_name):
+    # def get_file_path(self,file_name):
 
-        text_file = file_name.split('\\')[-1]
-        text_file = text_file.replace(".pdf",".txt")
+    #     text_file = file_name.split('\\')[-1]
+    #     text_file = text_file.replace(".pdf",".txt")
         
-        audio_file = file_name.split('\\')[-1]
-        audio_file = audio_file.replace(".pdf",".mp3")
+    #     audio_file = file_name.split('\\')[-1]
+    #     audio_file = audio_file.replace(".pdf",".mp3")
 
 
-        media_dir = Path(settings.MEDIA_DIR) 
-        media_dir.mkdir(exist_ok=True)
-        output_path = os.path.join(media_dir , 'Output')
-        output_dir = Path(output_path)
-        output_dir.mkdir(exist_ok=True)
+    #     media_dir = Path(settings.MEDIA_DIR) 
+    #     media_dir.mkdir(exist_ok=True)
+    #     output_path = os.path.join(media_dir , 'Output')
+    #     output_dir = Path(output_path)
+    #     output_dir.mkdir(exist_ok=True)
 
-        text_file_path = os.path.join(output_dir , text_file)
+    #     text_file_path = os.path.join(output_dir , text_file)
 
-        audio_file_path = os.path.join(output_dir , audio_file)
+    #     audio_file_path = os.path.join(output_dir , audio_file)
         
-        return text_file_path , audio_file_path
+    #     return text_file_path , audio_file_path
         
 
 
@@ -77,17 +77,25 @@ class ModelMistral:
             return str(error)
         
 
-    def extract_and_convert_to_audio(self , file_path):
+    def extract_and_convert_to_audio(self ,input_file_path = None , output_file_path = None):
 
         
         mistral_start_time = perf_counter()
         client = self.get_model()
-        
-        text_file_path , audio_file_path = self.get_file_path(file_path)
+
+        file_path = Path(output_file_path)
+
+
+        text_file_path = file_path.with_suffix('.txt')
+        audio_file_path = file_path.with_suffix('.mp3')
+        #text_file_path , audio_file_path = self.get_file_path(file_path)
         
         print(f"############# {text_file_path}")
 
         print(f"############# {audio_file_path}")
+
+    
+        file_path = output_file_path if input_file_path is None else input_file_path
 
     
 

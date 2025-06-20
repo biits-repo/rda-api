@@ -26,6 +26,15 @@ load_dotenv()
 setup_logger()
 logger = logging.getLogger(__name__)
 
+ACCEPTED_MIME_TYPES = {
+            'application/zip',
+            'application/x-zip-compressed',
+            'application/x-compressed-zip',
+            'application/pdf',
+            'image/jpeg',
+            'image/png',
+        }
+
 class GetPDFView(APIView):
     @download_pdf_schema
     def post(self, request):
@@ -165,9 +174,9 @@ class ImagesToPDF(APIView):
         mime_type , _ = mimetypes.guess_type(request_data.name)
         logger.info(mime_type)
 
+        
 
-
-        if mime_type == "application/zip":
+        if mime_type == "application/zip": #"application/x-zip-compressed"
 
             serializer = FileUploadSerializer(data=request.data)
 
@@ -186,7 +195,7 @@ class ImagesToPDF(APIView):
                 os.makedirs(input_dir, exist_ok=True)
 
                 input_file_path = os.path.join(input_dir , uploaded_file.name)
-                logger.info(input_file_path)
+                logger.info(f"##################{input_file_path}")
 
                 
                 try:
@@ -234,7 +243,7 @@ class ImagesToPDF(APIView):
                 
                     
 
-                    resp = model.extract_and_convert_to_audio(output_file_path)
+                    resp = model.extract_and_convert_to_audio(output_file_path = output_file_path)
 
                     print(resp)
 
@@ -261,10 +270,10 @@ class ImagesToPDF(APIView):
                 return Response({"status":"Invalid file"})
         
 
-        elif mime_type == "application/pdf":
+        elif mime_type == 'application/pdf':
             
             media_dir = get_media_dir()
-
+            logger.info("INSIDE THE PDF ###########################")
             input_path= os.path.join(media_dir,"Input")
             input_dir = Path(input_path)
 
@@ -285,7 +294,7 @@ class ImagesToPDF(APIView):
                         file.write(chunk)
 
 
-                model = ModelMistral()
+                #model = ModelMistral()
                 media_dir = get_media_dir()
 
                 output_path= os.path.join(media_dir,"Output")
@@ -293,9 +302,9 @@ class ImagesToPDF(APIView):
 
                 output_dir.mkdir(exist_ok=True)
 
-                output_file_path = os.path.join(input_dir , uploaded_file.name)
+                output_file_path = os.path.join(output_dir , uploaded_file.name)
 
-                resp = model.extract_and_convert_to_audio(output_file_path)
+                resp = model.extract_and_convert_to_audio(input_file_path = input_file_path , output_file_path = output_file_path)
 
                 print(resp)
 
