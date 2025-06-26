@@ -43,11 +43,13 @@ class GetPDFView(APIView):
         if serializer.is_valid():
             isbn = serializer.validated_data['isbn_number']
             filename = f"{isbn}.pdf"
-            file_path = os.path.join(settings.PDF_DIR, filename)
-
-            if os.path.isfile(file_path):
+            media_path = os.path.join(settings.MEDIA_DIR)
+            pdf_dir = os.path.join(media_path , "Input")
+            pdf_path = os.path.join(pdf_dir , filename)
+        
+            if os.path.isfile(pdf_path):
                 return FileResponse(
-                    open(file_path, 'rb'),
+                    open(pdf_path, 'rb'),
                     as_attachment=True,
                     content_type='application/pdf',
                     filename=filename
@@ -65,12 +67,15 @@ class GetAudioView(APIView):
         if serializer.is_valid():
             isbn = serializer.validated_data['isbn_number']
             filename = f"{isbn}.mp3"
-            file_path = os.path.join(settings.AUDIO_DIR, filename)
 
-            if os.path.isfile(file_path):
-                content_type, _ = mimetypes.guess_type(file_path)
+            media_path = os.path.join(settings.MEDIA_DIR)
+            audio_dir = os.path.join(media_path , "Output")
+            audio_file_path = os.path.join(audio_dir , filename)
+
+            if os.path.isfile(audio_file_path):
+                content_type, _ = mimetypes.guess_type(audio_file_path)
                 return FileResponse(
-                    open(file_path, 'rb'),
+                    open(audio_file_path, 'rb'),
                     as_attachment=True,
                     content_type=content_type or 'application/octet-stream',
                     filename=filename
@@ -176,7 +181,7 @@ class ImagesToPDF(APIView):
 
         
 
-        if mime_type == "application/zip": #"application/x-zip-compressed"
+        if mime_type == "application/x-zip-compressed": #"application/zip -> Linux" 
 
             serializer = FileUploadSerializer(data=request.data)
 
