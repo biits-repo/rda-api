@@ -67,3 +67,6 @@ logs/
 .nuxt/
 .out/
 public/
+
+# others
+endpoints.md
