@@ -70,3 +70,6 @@ public/
 
 # others
 endpoints.md
+
+# migrations
+*/migrations/
