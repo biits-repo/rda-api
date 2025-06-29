@@ -21,6 +21,10 @@ from .agent import ModelMistral
 from time import perf_counter
 from .logger_config import setup_logger
 import logging
+from .serializers import BookDraftSerializer, BookPublishedSerializer
+from .serializers import FileUploadSerializer
+from .models import SaveAsDraft, SaveAsPublished
+
 
 load_dotenv()
 setup_logger()
@@ -83,6 +87,119 @@ class GetAudioView(APIView):
             return Response({'message': 'Audio file not found'}, status=status.HTTP_404_NOT_FOUND)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class BookDraftView(APIView):
+    def get(self, request):
+        """Get all draft books"""
+        draft_books = SaveAsDraft.objects.all().order_by('-created_at')
+        serializer = BookDraftSerializer(draft_books, many=True)
+
+        return Response({
+            "status": "success",
+            "books": serializer.data
+        }, status=status.HTTP_200_OK)
+
+    def post(self, request):
+
+        isbn = request.data.get('isbn')
+
+        if not isbn:
+            return Response({
+                "status": "error",
+                "message": "ISBN is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if SaveAsPublished.objects.filter(isbn=isbn).exists():
+            return Response({
+                "status": "error",
+                "message": f"A published book with ISBN '{isbn}' already exists."
+            }, status=status.HTTP_409_CONFLICT)
+
+        if SaveAsDraft.objects.filter(isbn=isbn).exists():
+            return Response({
+                "status": "error",
+                "message": f"A draft with ISBN '{isbn}' already exists."
+            }, status=status.HTTP_409_CONFLICT)
+
+        serializer = BookDraftSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"status": "success", "data": serializer.data},
+                status=status.HTTP_201_CREATED
+            )
+        
+        return Response(
+            {"status": "error", "errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class BookPublishedView(APIView):
+    def get(self, request):
+        """Get all published books"""
+        published_books = SaveAsPublished.objects.all().order_by('-created_at')
+        serializer = BookPublishedSerializer(published_books, many=True)
+
+        return Response({
+            "status": "success",
+            "books": serializer.data
+        }, status=status.HTTP_200_OK)
+
+    def post(self, request):
+
+        isbn = request.data.get('isbn')
+
+        if not isbn:
+            return Response({
+                "status": "error",
+                "message": "ISBN is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        draft_book = SaveAsDraft.objects.filter(isbn=isbn).first()
+
+        if SaveAsPublished.objects.filter(isbn=isbn).exists():
+            return Response({
+                "status": "error",
+                "message": f"A published book with ISBN '{isbn}' already exists."
+            }, status=status.HTTP_409_CONFLICT)
+        
+        serializer = BookPublishedSerializer(data=request.data) 
+        if serializer.is_valid():
+
+            if draft_book:
+                draft_book.delete()
+
+            serializer.save()
+            return Response(
+                {"status": "success", "data": serializer.data},
+                status=status.HTTP_201_CREATED
+            )
+        
+        return Response(
+            {"status": "error", "errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class GetAllBooks(APIView):
+    def get(self):
+        draft_books = SaveAsDraft.objects.all()
+        published_books = SaveAsPublished.objects.all()
+
+        draft_serializer = BookDraftSerializer(draft_books, many=True)
+        published_serializer = BookPublishedSerializer(published_books, many=True)
+
+        combined_books = draft_serializer.data + published_serializer.data
+
+        return Response({
+            "status": "success",
+            "books": combined_books
+        }, status=status.HTTP_200_OK)
+
+
+
 
 
 
