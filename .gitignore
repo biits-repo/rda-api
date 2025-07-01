@@ -72,6 +72,7 @@ public/
 endpoints.md
 
 # migrations
+**/migrations/*.pyc
 **/migrations/
 **/migrations/*.py
 **/migrations/__pycache__/
