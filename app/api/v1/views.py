@@ -90,7 +90,7 @@ class GetAudioView(APIView):
     
 
 class BookDraftView(APIView):
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         """Get all draft books"""
         draft_books = SaveAsDraft.objects.all().order_by('-created_at')
         serializer = BookDraftSerializer(draft_books, many=True)
@@ -137,7 +137,7 @@ class BookDraftView(APIView):
 
 
 class BookPublishedView(APIView):
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         """Get all published books"""
         published_books = SaveAsPublished.objects.all().order_by('-created_at')
         serializer = BookPublishedSerializer(published_books, many=True)
@@ -184,7 +184,7 @@ class BookPublishedView(APIView):
 
 
 class GetAllBooks(APIView):
-    def get(self):
+    def get(self, request, *args, **kwargs):
         draft_books = SaveAsDraft.objects.all()
         published_books = SaveAsPublished.objects.all()
 
@@ -196,6 +196,27 @@ class GetAllBooks(APIView):
         return Response({
             "status": "success",
             "books": combined_books
+        }, status=status.HTTP_200_OK)
+    
+
+class GetBookByISBN(APIView):
+    def get(self, request, isbn, *args, **kwargs):
+        draft_book = SaveAsDraft.objects.filter(isbn=isbn).first()
+        published_book = SaveAsPublished.objects.filter(isbn=isbn).first()
+
+        if draft_book:
+            serializer = BookDraftSerializer(draft_book)   
+        elif published_book:
+            serializer = BookPublishedSerializer(published_book)
+        else:
+            return Response({
+                "status": "error",
+                "message": "Book not found."
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        return Response({
+            "status": "success",
+            "book": serializer.data
         }, status=status.HTTP_200_OK)
 
 
